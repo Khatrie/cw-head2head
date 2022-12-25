@@ -14,6 +14,19 @@ local useDebug = Config.Debug
 local opponent = nil
 local opponentId = nil
 local finishBlip = nil
+local PlayerJob = {}
+
+RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function(JobInfo)
+    QBCore.Functions.GetPlayerData(function(PlayerData)
+        PlayerJob = PlayerData.job
+    end)
+end)
+
+RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
+    QBCore.Functions.GetPlayerData(function(PlayerData)
+        PlayerJob = PlayerData.job
+    end)
+end)
 
 local function dump(o)
    if type(o) == 'table' then
@@ -425,22 +438,26 @@ end
 Citizen.CreateThread(function()
 	local isInCar = false
 	while true do
-		Citizen.Wait(0)					-- mandatory wait
-		local ped = GetPlayerPed(-1)	-- get local ped
-		
-		if IsPedInAnyVehicle(ped, false) then
-			local veh = GetVehiclePedIsIn(ped, false)
-			if isInCar == false then
-				isInCar = true
-				addRadialMenu()
-			end
-		else
-			if isInCar == true then
-				isInCar = false
-				removeRadialMenu()
-			end
-		end
-	end
+        Citizen.Wait(0)					-- mandatory wait
+        local ped = GetPlayerPed(-1)	-- get local ped
+
+        if PlayerJob.name == 'police' then
+            Wait(1000)
+        else
+            if IsPedInAnyVehicle(ped, false) then
+                local veh = GetVehiclePedIsIn(ped, false)
+                if isInCar == false then
+                    isInCar = true
+                    addRadialMenu()
+                end
+            else
+                if isInCar == true then
+                    isInCar = false
+                    removeRadialMenu()
+                end
+            end
+        end
+    end
 end)
 
 RegisterNetEvent('cw-head2head:client:debugMap', function()
